@@ -1,0 +1,7 @@
+{
+  "out": "./docs",
+  "name": "Otomat TS Client",
+  "theme": "markdown",
+  "readme": "none",
+  "tsconfig": "./tsconfig.bundle.json"
+}
