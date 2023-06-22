@@ -2,29 +2,41 @@ import fetch from 'node-fetch';
 import {
   Generator,
   GeneratorFunction,
-  GeneratorModule,
+  GeneratorOption,
   IPMGenerator,
   IPMOutput,
   IPMResponse,
   isIPMFunction,
 } from '../generator/types';
-import {
-  CustomModule,
-  PostOperatorData,
-  PostOperatorResult,
-} from '../module/types';
 import { ChatCompletionRequestMessage } from 'openai';
 
-type GenerationProps = {
+type InputOptions<O extends GeneratorOption[]> = {
+  [K in O[number]['name']]: Extract<
+    O[number],
+    { name: K }
+  >['type'] extends 'string'
+    ? string
+    : Extract<O[number], { name: K }>['type'] extends 'number'
+    ? number
+    : Extract<O[number], { name: K }>['type'] extends 'boolean'
+    ? boolean
+    : Extract<O[number], { name: K }>['type'] extends 'object'
+    ? object
+    : Extract<O[number], { name: K }>['type'] extends 'array'
+    ? any[]
+    : never;
+};
+
+type GenerationProps<O extends GeneratorOption[]> = {
   data: any;
-  options: Record<string, any>;
+  options: InputOptions<O>;
   history?: ChatCompletionRequestMessage[];
 };
 
-class IPM {
-  private generator: IPMGenerator;
+class IPM<O extends GeneratorOption[]> {
+  private generator: IPMGenerator<O>;
 
-  constructor({ generator }: IPMProps) {
+  constructor({ generator }: IPMProps<O>) {
     this.generator = generator;
   }
 
@@ -32,7 +44,7 @@ class IPM {
     data,
     options,
     history,
-  }: GenerationProps): Promise<IPMOutput> {
+  }: GenerationProps<O>): Promise<IPMOutput> {
     try {
       const functions: GeneratorFunction[] =
         this.generator.instructions.functions.map((f) => {
@@ -109,90 +121,17 @@ class IPM {
     }
   }
 
-  public async generate(props: GenerationProps) {
+  public async generate(props: GenerationProps<O>) {
     return this._generate(props);
   }
-
-  public async generateWithCallback(props: GenerationProps, callback: any) {
-    const output = await this._generate(props);
-
-    return callback(output);
-  }
 }
 
-type IPMProps = {
-  generator: IPMGenerator;
-  customModules?: CustomModule<any>[];
+type IPMProps<O extends GeneratorOption[]> = {
+  generator: IPMGenerator<O>;
 };
 
-function createIPM(props: IPMProps): IPM {
+export function createIPM<O extends GeneratorOption[]>(
+  props: IPMProps<O>,
+): IPM<O> {
   return new IPM(props);
 }
-
-function testfunction() {}
-
-const healthIPM = createIPM({
-  // IPM = Intelligent Programmatic Module
-  generator: {
-    instructions: {
-      prompt:
-        'Hello, I am a health generator. I can generate health related text.',
-      context: 'I am a health generator.',
-      output: {
-        description: 'The generated text',
-        schema: {}, // Handle schema generation
-      },
-      functions: [
-        {
-          function: testfunction,
-          description: 'A test function',
-          chain: true,
-        },
-      ],
-      options: [
-        {
-          name: 'language',
-          description: 'The language to generate in',
-          type: 'string',
-          constant: false,
-          default: 'english',
-        },
-      ],
-    },
-    settings: {
-      model: 'gpt-4',
-      context: 'default',
-      apiKey: '123',
-    },
-    flow: [
-      {
-        type: 'generate',
-      },
-      {
-        type: 'process',
-        module: {
-          name: 'compliance',
-        },
-      },
-    ],
-    customModules: [
-      {
-        type: 'post',
-        name: 'Moderate',
-        key: 'moderate',
-        description: 'Moderate the output',
-        operator: // todo
-      },
-    ],
-  },
-});
-
-healthIPM.generateWithCallback(
-  {
-    data: 'lelz',
-    options: {
-      language: 'french',
-    },
-  },
-  (data) => console.log(data),
-);

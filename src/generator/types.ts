@@ -1,10 +1,5 @@
 import { JSONSchema7 } from 'json-schema';
-import {
-  CustomModule,
-  Meta,
-  ModuleNames,
-  ModuleOptionValue,
-} from '../module/types';
+import { Meta, ModuleNames, ModuleOptionValue } from '../module/types';
 import { ChatCompletionRequestMessage } from 'openai';
 
 export const GENERATOR_MODELS = [
@@ -117,16 +112,16 @@ export type Generator = {
   flow?: GeneratorFlow;
   data: any;
   options?: Record<string, any>;
-  customModules?: CustomModule<any>[];
   history?: ChatCompletionRequestMessage[];
 };
 
-export type IPMGenerator = Omit<
+export type IPMGenerator<O extends GeneratorOption[]> = Omit<
   Generator,
   'instructions' | 'data' | 'options' | 'history'
 > & {
-  instructions: Omit<GeneratorInstructions, 'functions'> & {
+  instructions: Omit<GeneratorInstructions, 'functions' | 'options'> & {
     functions: IPMGeneratorFunction[];
+    options?: O;
   };
 };
 
@@ -140,7 +135,7 @@ export type BaseIPMResponse = {
   meta: Meta;
 };
 
-export type IPMFunctionResponse = BaseGeneratorFunction & {
+export type IPMFunctionResponse = BaseIPMResponse & {
   type: 'function';
   data: {
     name: string;
@@ -149,7 +144,7 @@ export type IPMFunctionResponse = BaseGeneratorFunction & {
   };
 };
 
-export type IPMJSONResponse = BaseGeneratorFunction & {
+export type IPMJSONResponse = BaseIPMResponse & {
   type: 'json';
   data: any;
 };

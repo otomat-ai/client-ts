@@ -3,7 +3,6 @@ import {
   ChatCompletionRequestMessageFunctionCall,
 } from 'openai';
 import { GeneratorModel, GeneratorModule } from '../generator/types';
-import type { ClairModule } from './clair';
 
 export type ModuleNames = keyof typeof modules;
 
@@ -23,16 +22,6 @@ export type ModuleOptionValue<T extends ModuleNames> = {
 
 export type Module<T extends Record<string, ModuleOptionDefinition<any>>> = {
   options: T;
-};
-
-export type CustomModule<
-  T extends Record<string, ModuleOptionDefinition<any>>,
-> = Module<T> & {
-  type: 'pre' | 'post';
-  name: string;
-  key: string;
-  description: string;
-  operator: typeof ClairModule;
 };
 
 export const modules: Record<
