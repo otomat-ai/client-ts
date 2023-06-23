@@ -3,10 +3,10 @@ import {
   Generator,
   GeneratorFunction,
   GeneratorOption,
-  IPMGenerator,
-  IPMOutput,
-  IPMResponse,
-  isIPMFunction,
+  ISCGenerator,
+  ISCOutput,
+  ISCResponse,
+  isISCFunction,
 } from '../generator/types';
 import { ChatCompletionRequestMessage } from 'openai';
 
@@ -33,10 +33,10 @@ type GenerationProps<O extends GeneratorOption[]> = {
   history?: ChatCompletionRequestMessage[];
 };
 
-class IPM<O extends GeneratorOption[]> {
-  private generator: IPMGenerator<O>;
+class ISC<O extends GeneratorOption[]> {
+  private generator: ISCGenerator<O>;
 
-  constructor({ generator }: IPMProps<O>) {
+  constructor({ generator }: ISCProps<O>) {
     this.generator = generator;
   }
 
@@ -44,11 +44,11 @@ class IPM<O extends GeneratorOption[]> {
     data,
     options,
     history,
-  }: GenerationProps<O>): Promise<IPMOutput> {
+  }: GenerationProps<O>): Promise<ISCOutput> {
     try {
       const functions: GeneratorFunction[] =
         this.generator.instructions.functions.map((f) => {
-          if (isIPMFunction(f)) {
+          if (isISCFunction(f)) {
             return {
               name: f.function.name,
               description: f.description,
@@ -77,11 +77,11 @@ class IPM<O extends GeneratorOption[]> {
         body: JSON.stringify(generator),
       });
 
-      const output: IPMResponse = (await result.json()) as IPMResponse;
+      const output: ISCResponse = (await result.json()) as ISCResponse;
 
       if (output.type === 'function') {
         const f = this.generator.instructions.functions
-          .filter(isIPMFunction)
+          .filter(isISCFunction)
           .find((f) => f.function.name === output.data.name);
         if (!f) {
           throw new Error('Function not found');
@@ -126,12 +126,12 @@ class IPM<O extends GeneratorOption[]> {
   }
 }
 
-type IPMProps<O extends GeneratorOption[]> = {
-  generator: IPMGenerator<O>;
+type ISCProps<O extends GeneratorOption[]> = {
+  generator: ISCGenerator<O>;
 };
 
-export function createIPM<O extends GeneratorOption[]>(
-  props: IPMProps<O>,
-): IPM<O> {
-  return new IPM(props);
+export function createISC<O extends GeneratorOption[]>(
+  props: ISCProps<O>,
+): ISC<O> {
+  return new ISC(props);
 }

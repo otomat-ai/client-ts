@@ -94,7 +94,7 @@ export type GeneratorExternalFunction = BaseGeneratorFunction & {
   type: 'external';
 };
 
-export type IPMFunction = {
+export type ISCFunction = {
   function: Function;
   description: string;
   chain: boolean;
@@ -104,7 +104,7 @@ export type GeneratorFunction =
   | GeneratorEndpointFunction
   | GeneratorExternalFunction;
 
-export type IPMGeneratorFunction = GeneratorEndpointFunction | IPMFunction;
+export type ISCGeneratorFunction = GeneratorEndpointFunction | ISCFunction;
 
 export type Generator = {
   instructions: GeneratorInstructions;
@@ -115,27 +115,27 @@ export type Generator = {
   history?: ChatCompletionRequestMessage[];
 };
 
-export type IPMGenerator<O extends GeneratorOption[]> = Omit<
+export type ISCGenerator<O extends GeneratorOption[]> = Omit<
   Generator,
   'instructions' | 'data' | 'options' | 'history'
 > & {
   instructions: Omit<GeneratorInstructions, 'functions' | 'options'> & {
-    functions: IPMGeneratorFunction[];
+    functions: ISCGeneratorFunction[];
     options?: O;
   };
 };
 
-export function isIPMFunction(
-  functionToCheck: IPMGeneratorFunction,
-): functionToCheck is IPMFunction {
-  return (functionToCheck as IPMFunction).function !== undefined;
+export function isISCFunction(
+  functionToCheck: ISCGeneratorFunction,
+): functionToCheck is ISCFunction {
+  return (functionToCheck as ISCFunction).function !== undefined;
 }
 
-export type BaseIPMResponse = {
+export type BaseISCResponse = {
   meta: Meta;
 };
 
-export type IPMFunctionResponse = BaseIPMResponse & {
+export type ISCFunctionResponse = BaseISCResponse & {
   type: 'function';
   data: {
     name: string;
@@ -144,15 +144,15 @@ export type IPMFunctionResponse = BaseIPMResponse & {
   };
 };
 
-export type IPMJSONResponse = BaseIPMResponse & {
+export type ISCJSONResponse = BaseISCResponse & {
   type: 'json';
   data: any;
 };
 
-export type IPMResponse = IPMFunctionResponse | IPMJSONResponse;
+export type ISCResponse = ISCFunctionResponse | ISCJSONResponse;
 
-export type IPMFunctionOutput = IPMFunctionResponse & {
+export type ISCFunctionOutput = ISCFunctionResponse & {
   result: any;
 };
 
-export type IPMOutput = IPMFunctionOutput | IPMJSONResponse;
+export type ISCOutput = ISCFunctionOutput | ISCJSONResponse;
