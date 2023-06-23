@@ -63,6 +63,10 @@ const options = {
       format: 'umd',
       plugins: [terser()],
     }),
+    createOutputOptions({
+      file: './dist/index.amd.js',
+      format: 'amd',
+    }),
   ],
   plugins: [
     typescript2({

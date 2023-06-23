@@ -26,7 +26,7 @@
     "strict": true,
 
     // Type-checking settings.
-    "lib": ["ES2020", "DOM"],
+    "lib": ["ESNext", "DOM"],
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "types": ["jest"]
