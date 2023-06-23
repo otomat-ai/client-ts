@@ -94,7 +94,7 @@ export type GeneratorExternalFunction = BaseGeneratorFunction & {
   type: 'external';
 };
 
-export type ISCFunction = {
+export type OGCFunction = {
   function: Function;
   description: string;
   chain: boolean;
@@ -104,7 +104,7 @@ export type GeneratorFunction =
   | GeneratorEndpointFunction
   | GeneratorExternalFunction;
 
-export type ISCGeneratorFunction = GeneratorEndpointFunction | ISCFunction;
+export type OGCGeneratorFunction = GeneratorEndpointFunction | OGCFunction;
 
 export type Generator = {
   instructions: GeneratorInstructions;
@@ -115,27 +115,27 @@ export type Generator = {
   history?: ChatCompletionRequestMessage[];
 };
 
-export type ISCGenerator<O extends GeneratorOption[]> = Omit<
+export type OGCGenerator<O extends GeneratorOption[]> = Omit<
   Generator,
   'instructions' | 'data' | 'options' | 'history'
 > & {
   instructions: Omit<GeneratorInstructions, 'functions' | 'options'> & {
-    functions: ISCGeneratorFunction[];
+    functions: OGCGeneratorFunction[];
     options?: O;
   };
 };
 
-export function isISCFunction(
-  functionToCheck: ISCGeneratorFunction,
-): functionToCheck is ISCFunction {
-  return (functionToCheck as ISCFunction).function !== undefined;
+export function isOGCFunction(
+  functionToCheck: OGCGeneratorFunction,
+): functionToCheck is OGCFunction {
+  return (functionToCheck as OGCFunction).function !== undefined;
 }
 
-export type BaseISCResponse = {
+export type BaseOGCResponse = {
   meta: Meta;
 };
 
-export type ISCFunctionResponse = BaseISCResponse & {
+export type OGCFunctionResponse = BaseOGCResponse & {
   type: 'function';
   data: {
     name: string;
@@ -144,15 +144,15 @@ export type ISCFunctionResponse = BaseISCResponse & {
   };
 };
 
-export type ISCJSONResponse = BaseISCResponse & {
+export type OGCJSONResponse = BaseOGCResponse & {
   type: 'json';
   data: any;
 };
 
-export type ISCResponse = ISCFunctionResponse | ISCJSONResponse;
+export type OGCResponse = OGCFunctionResponse | OGCJSONResponse;
 
-export type ISCFunctionOutput = ISCFunctionResponse & {
+export type OGCFunctionOutput = OGCFunctionResponse & {
   result: any;
 };
 
-export type ISCOutput = ISCFunctionOutput | ISCJSONResponse;
+export type OGCOutput = OGCFunctionOutput | OGCJSONResponse;

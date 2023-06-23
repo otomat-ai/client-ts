@@ -3,10 +3,10 @@ import {
   Generator,
   GeneratorFunction,
   GeneratorOption,
-  ISCGenerator,
-  ISCOutput,
-  ISCResponse,
-  isISCFunction,
+  OGCGenerator,
+  OGCOutput,
+  OGCResponse,
+  isOGCFunction,
 } from '../generator/types';
 import { ChatCompletionRequestMessage } from 'openai';
 
@@ -33,10 +33,10 @@ type GenerationProps<O extends GeneratorOption[]> = {
   history?: ChatCompletionRequestMessage[];
 };
 
-class ISC<O extends GeneratorOption[]> {
-  private generator: ISCGenerator<O>;
+class OGC<O extends GeneratorOption[]> {
+  private generator: OGCGenerator<O>;
 
-  constructor({ generator }: ISCProps<O>) {
+  constructor({ generator }: OGCProps<O>) {
     this.generator = generator;
   }
 
@@ -44,11 +44,11 @@ class ISC<O extends GeneratorOption[]> {
     data,
     options,
     history,
-  }: GenerationProps<O>): Promise<ISCOutput> {
+  }: GenerationProps<O>): Promise<OGCOutput> {
     try {
       const functions: GeneratorFunction[] =
         this.generator.instructions.functions.map((f) => {
-          if (isISCFunction(f)) {
+          if (isOGCFunction(f)) {
             return {
               name: f.function.name,
               description: f.description,
@@ -77,11 +77,11 @@ class ISC<O extends GeneratorOption[]> {
         body: JSON.stringify(generator),
       });
 
-      const output: ISCResponse = (await result.json()) as ISCResponse;
+      const output: OGCResponse = (await result.json()) as OGCResponse;
 
       if (output.type === 'function') {
         const f = this.generator.instructions.functions
-          .filter(isISCFunction)
+          .filter(isOGCFunction)
           .find((f) => f.function.name === output.data.name);
         if (!f) {
           throw new Error('Function not found');
@@ -126,12 +126,12 @@ class ISC<O extends GeneratorOption[]> {
   }
 }
 
-type ISCProps<O extends GeneratorOption[]> = {
-  generator: ISCGenerator<O>;
+type OGCProps<O extends GeneratorOption[]> = {
+  generator: OGCGenerator<O>;
 };
 
-export function createISC<O extends GeneratorOption[]>(
-  props: ISCProps<O>,
-): ISC<O> {
-  return new ISC(props);
+export function createOGC<O extends GeneratorOption[]>(
+  props: OGCProps<O>,
+): OGC<O> {
+  return new OGC(props);
 }
